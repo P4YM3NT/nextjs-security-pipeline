@@ -77,6 +77,21 @@ node ../nextjs-security-pipeline/scripts/local-scan.mjs --fix   # Scannen + fixe
 
 Bei Updates: neuen Tag `v2` erstellen, Kundenprojekte auf `@v2` migrieren.
 
+## Dokumentation
+
+Vollständige Doku im [`docs/`](./docs/) Ordner:
+
+| Datei | Inhalt |
+|-------|--------|
+| [00-uebersicht.md](./docs/00-uebersicht.md) | Einstieg, das große Bild |
+| [01-architektur.md](./docs/01-architektur.md) | Reusable Workflows, Repo-Struktur, Datenfluss |
+| [02-tools.md](./docs/02-tools.md) | Jedes Tool erklärt: was, warum, was es findet |
+| [03-integration.md](./docs/03-integration.md) | Schritt-für-Schritt: neues Projekt einbinden |
+| [04-modi-workflows.md](./docs/04-modi-workflows.md) | Auto / Scan / Fix — die 3 Modi im Detail |
+| [05-report.md](./docs/05-report.md) | Den HTML-Report lesen, an Kunden weitergeben |
+| [06-dsgvo-recht.md](./docs/06-dsgvo-recht.md) | DSGVO §32, Rechtslage, AVV-Formulierungen |
+| [07-kosten.md](./docs/07-kosten.md) | GitHub Actions Kontingente, Skalierung |
+
 ## DSGVO §32
 
 Alle Tools laufen ausschließlich in der GitHub Actions Infrastruktur.

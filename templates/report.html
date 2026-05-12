@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Security Report — {{project}}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+
+    .header { background: #0f172a; color: #fff; padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; }
+    .header-brand { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.05em; color: #94a3b8; }
+    .header-project { font-size: 1.8rem; font-weight: 800; margin-top: 0.25rem; }
+    .header-meta { text-align: right; font-size: 0.85rem; color: #94a3b8; }
+    .header-date { font-size: 1.5rem; font-weight: 700; color: #fff; }
+
+    .status-banner { padding: 1.5rem 3rem; display: flex; align-items: center; gap: 1rem; font-size: 1.15rem; font-weight: 600; }
+    .status-dot { width: 1rem; height: 1rem; border-radius: 50%; }
+
+    .main { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; }
+
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2.5rem; }
+    .summary-card { background: #fff; border-radius: 12px; padding: 1.25rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 4px solid; }
+    .summary-card .count { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+    .summary-card .label { font-size: 0.8rem; color: #64748b; margin-top: 0.25rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+    .summary-card .sublabel { font-size: 0.75rem; color: #94a3b8; margin-top: 0.5rem; }
+
+    .section { background: #fff; border-radius: 12px; padding: 1.5rem 2rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; color: #0f172a; }
+    .section-title .badge { background: #f1f5f9; color: #475569; font-size: 0.7rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 2px solid #e2e8f0; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.8rem; background: #f1f5f9; padding: 0.1rem 0.35rem; border-radius: 4px; }
+
+    .severity-badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; color: #fff; }
+
+    .empty-state { text-align: center; padding: 2rem; color: #94a3b8; }
+    .empty-state .icon { font-size: 2rem; }
+    .empty-state .text { font-size: 0.9rem; margin-top: 0.5rem; }
+
+    .gdpr-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 1.5rem 2rem; margin-top: 2rem; }
+    .gdpr-box h3 { color: #15803d; font-size: 0.95rem; margin-bottom: 0.75rem; }
+    .gdpr-box p { font-size: 0.85rem; color: #166534; line-height: 1.7; }
+
+    .footer { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid #e2e8f0; margin-top: 2rem; }
+    .footer strong { color: #475569; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div>
+    <div class="header-brand">ptr-digital · Security Report</div>
+    <div class="header-project">{{project}}</div>
+    <div style="margin-top: 0.5rem; color: #94a3b8; font-size: 0.85rem;">Modus: {{mode}} · Run #{{runId}}</div>
+  </div>
+  <div class="header-meta">
+    <div style="font-size: 0.75rem;">Erstellt am</div>
+    <div class="header-date">{{date}}</div>
+    {{#if repo}}<div style="margin-top: 0.5rem;">{{repo}}</div>{{/if}}
+  </div>
+</div>
+
+<!-- STATUS BANNER -->
+<div class="status-banner" style="background-color: {{overallColor}}15; border-bottom: 3px solid {{overallColor}};">
+  <div class="status-dot" style="background: {{overallColor}};"></div>
+  <span>{{overallEmoji}} Gesamtstatus: <strong>{{overallStatus}}</strong></span>
+</div>
+
+<div class="main">
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+    <div class="summary-card" style="border-color: {{#if secretCount}}#dc2626{{else}}#16a34a{{/if}};">
+      <div class="count" style="color: {{#if secretCount}}#dc2626{{else}}#16a34a{{/if}};">{{secretCount}}</div>
+      <div class="label">Secrets & Leaks</div>
+      <div class="sublabel">Gitleaks</div>
+    </div>
+    <div class="summary-card" style="border-color: {{#if npmCritical}}#dc2626{{else}}{{#if npmHigh}}#ea580c{{else}}#16a34a{{/if}}{{/if}};">
+      <div class="count" style="color: {{#if npmCritical}}#dc2626{{else}}{{#if npmHigh}}#ea580c{{else}}#16a34a{{/if}}{{/if}};">{{npmTotal}}</div>
+      <div class="label">npm Vulnerabilities</div>
+      <div class="sublabel">{{npmCritical}} kritisch · {{npmHigh}} hoch</div>
+    </div>
+    <div class="summary-card" style="border-color: {{#if semgrepCount}}#ea580c{{else}}#16a34a{{/if}};">
+      <div class="count" style="color: {{#if semgrepCount}}#ea580c{{else}}#16a34a{{/if}};">{{semgrepCount}}</div>
+      <div class="label">SAST Findings</div>
+      <div class="sublabel">Semgrep</div>
+    </div>
+    <div class="summary-card" style="border-color: {{#if eslintCount}}#d97706{{else}}#16a34a{{/if}};">
+      <div class="count" style="color: {{#if eslintCount}}#d97706{{else}}#16a34a{{/if}};">{{eslintCount}}</div>
+      <div class="label">ESLint Issues</div>
+      <div class="sublabel">Security Plugin</div>
+    </div>
+    <div class="summary-card" style="border-color: #6b7280;">
+      <div class="count" style="color: #6b7280;">{{unusedFilesCount}}</div>
+      <div class="label">Tote Dateien</div>
+      <div class="sublabel">+ {{unusedDepsCount}} Dependencies</div>
+    </div>
+  </div>
+
+  <!-- SECRETS -->
+  <div class="section">
+    <div class="section-title">
+      🔑 Secrets & API-Keys <span class="badge">{{secretCount}}</span>
+    </div>
+    {{#if secrets.length}}
+      <table>
+        <thead>
+          <tr>
+            <th>Beschreibung</th>
+            <th>Datei</th>
+            <th>Zeile</th>
+            <th>Commit</th>
+            <th>Autor</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each secrets}}
+          <tr>
+            <td><span class="severity-badge" style="background:#dc2626;">KRITISCH</span> {{description}}</td>
+            <td><code>{{file}}</code></td>
+            <td>{{line}}</td>
+            <td><code>{{commit}}</code></td>
+            <td>{{author}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine Secrets oder API-Keys gefunden</div></div>
+    {{/if}}
+  </div>
+
+  <!-- NPM AUDIT -->
+  <div class="section">
+    <div class="section-title">
+      📦 npm Dependency Vulnerabilities <span class="badge">{{npmTotal}}</span>
+    </div>
+    {{#if npmVulns.length}}
+      <table>
+        <thead>
+          <tr>
+            <th>Paket</th>
+            <th>Schweregrad</th>
+            <th>Betroffene Version</th>
+            <th>Ursache (via)</th>
+            <th>Auto-Fix verfügbar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each npmVulns}}
+          <tr>
+            <td><code>{{name}}</code></td>
+            <td><span class="severity-badge" style="background:{{severityColor}};">{{severity}}</span></td>
+            <td><code>{{range}}</code></td>
+            <td style="max-width: 200px; word-break: break-word;">{{via}}</td>
+            <td>{{fixAvailable}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine bekannten Vulnerabilities in Abhängigkeiten</div></div>
+    {{/if}}
+  </div>
+
+  <!-- SEMGREP -->
+  <div class="section">
+    <div class="section-title">
+      🔍 SAST Code-Analyse (Semgrep) <span class="badge">{{semgrepCount}}</span>
+    </div>
+    {{#if semgrepIssues.length}}
+      <table>
+        <thead>
+          <tr>
+            <th>Datei</th>
+            <th>Zeile</th>
+            <th>Schweregrad</th>
+            <th>Regel</th>
+            <th>OWASP</th>
+            <th>Beschreibung</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each semgrepIssues}}
+          <tr>
+            <td><code>{{file}}</code></td>
+            <td>{{line}}</td>
+            <td><span class="severity-badge" style="background:{{severityColor}};">{{severity}}</span></td>
+            <td><code>{{rule}}</code></td>
+            <td>{{owasp}}</td>
+            <td>{{message}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine SAST-Findings (OWASP Top 10, Next.js-Regeln)</div></div>
+    {{/if}}
+  </div>
+
+  <!-- ESLINT -->
+  <div class="section">
+    <div class="section-title">
+      📝 ESLint Security Issues <span class="badge">{{eslintCount}}</span>
+    </div>
+    {{#if eslintIssues.length}}
+      <table>
+        <thead>
+          <tr>
+            <th>Datei</th>
+            <th>Zeile</th>
+            <th>Typ</th>
+            <th>Regel</th>
+            <th>Beschreibung</th>
+            <th>Auto-Fix</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each eslintIssues}}
+          <tr>
+            <td><code>{{file}}</code></td>
+            <td>{{line}}</td>
+            <td><span class="severity-badge" style="background:{{severityColor}};">{{severity}}</span></td>
+            <td><code>{{rule}}</code></td>
+            <td>{{message}}</td>
+            <td>{{fixable}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{else}}
+      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine ESLint Security Issues gefunden</div></div>
+    {{/if}}
+  </div>
+
+  <!-- KNIP / DEAD CODE -->
+  <div class="section">
+    <div class="section-title">
+      🗑️ Toter Code & ungenutzte Abhängigkeiten (Knip)
+      <span class="badge">{{unusedFilesCount}} Dateien · {{unusedDepsCount}} Deps</span>
+    </div>
+    {{#if unusedFiles.length}}
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">Ungenutzte Dateien (erhöhen Angriffsfläche):</p>
+      <table>
+        <tbody>
+          {{#each unusedFiles}}
+          <tr><td><code>{{this}}</code></td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
+    {{#if unusedDeps.length}}
+      <p style="font-size: 0.85rem; color: #64748b; margin: 1rem 0 0.75rem;">Ungenutzte Dependencies:</p>
+      <table>
+        <tbody>
+          {{#each unusedDeps}}
+          <tr><td><code>{{name}}</code></td></tr>
+          {{/each}}
+        </tbody>
+      </table>
+    {{/if}}
+    {{#if (and (eq unusedFilesCount 0) (eq unusedDepsCount 0))}}
+      <div class="empty-state"><div class="icon">✅</div><div class="text">Kein toter Code oder ungenutzte Abhängigkeiten</div></div>
+    {{/if}}
+  </div>
+
+  <!-- DSGVO BOX -->
+  <div class="gdpr-box">
+    <h3>📋 Technische Sicherheitsmaßnahmen gemäß Art. 32 DSGVO</h3>
+    <p>
+      Im Rahmen der technisch-organisatorischen Maßnahmen (TOMs) gemäß Art. 32 DSGVO wurde am <strong>{{date}}</strong> eine automatisierte Sicherheitsprüfung des Projekts <strong>{{project}}</strong> durchgeführt. Die Prüfung umfasste:
+      Secret-Scanning (Gitleaks), Dependency-Vulnerability-Analyse (npm audit), statische Code-Analyse (Semgrep OWASP Top 10), sicherheitsorientiertes Linting (ESLint Security Plugin) sowie Erkennung ungenutzter Code-Bestandteile (Knip). Alle Prüfwerkzeuge laufen ausschließlich in der eigenen GitHub-Infrastruktur. Es wurden keine Code-Daten an Drittanbieter-Dienste übertragen.
+      Dieses Dokument dient als Nachweis der regelmäßigen Überprüfung gemäß Art. 32 Abs. 1 lit. d DSGVO.
+    </p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <strong>ptr-digital</strong> · Automatisierter Security Report · {{date}}<br>
+  Generiert durch die <em>ptr-digital Next.js Security Pipeline</em> · Alle Tools MIT/Apache lizenziert
+</div>
+
+</body>
+</html>

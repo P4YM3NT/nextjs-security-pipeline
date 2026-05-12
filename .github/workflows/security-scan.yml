@@ -1,0 +1,284 @@
+name: Security Scan (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        type: string
+        default: scan
+        description: "'scan' = nur prüfen | 'fix' = auto-fix + PR erstellen"
+      project_name:
+        type: string
+        default: "Next.js Projekt"
+        description: "Projektname für den Kundenbericht"
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. GITLEAKS — Secrets & API-Keys im Code/History
+  # ─────────────────────────────────────────────
+  gitleaks:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Save Gitleaks result
+        if: always()
+        run: |
+          if [ -f gitleaks-report.json ]; then
+            echo "gitleaks_found=true" >> $GITHUB_ENV
+          else
+            echo '[]' > gitleaks-report.json
+            echo "gitleaks_found=false" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gitleaks-results
+          path: gitleaks-report.json
+
+  # ─────────────────────────────────────────────
+  # 2. NPM AUDIT — CVEs in Abhängigkeiten
+  # ─────────────────────────────────────────────
+  npm-audit:
+    name: Dependency Scan (npm audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --json > npm-audit.json || true
+
+      - name: Auto-fix dependencies (nur im Fix-Modus)
+        if: inputs.mode == 'fix'
+        run: |
+          npm audit fix || true
+          npm audit fix --force || true
+
+      - name: Save fixed package.json (Fix-Modus)
+        if: inputs.mode == 'fix'
+        uses: actions/upload-artifact@v4
+        with:
+          name: npm-fix-results
+          path: |
+            package.json
+            package-lock.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-audit-results
+          path: npm-audit.json
+
+  # ─────────────────────────────────────────────
+  # 3. ESLINT + SECURITY PLUGIN — Unsichere Code-Pattern
+  # ─────────────────────────────────────────────
+  eslint-security:
+    name: Code Security (ESLint)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install ESLint Security Plugin
+        run: npm install --save-dev eslint-plugin-security@latest
+
+      - name: Run ESLint Security Scan
+        run: |
+          npx eslint . \
+            --format json \
+            --output-file eslint-results.json \
+            || true
+
+      - name: Auto-fix ESLint Issues (nur im Fix-Modus)
+        if: inputs.mode == 'fix'
+        run: npx eslint . --fix || true
+
+      - name: Save fixed files (Fix-Modus)
+        if: inputs.mode == 'fix'
+        uses: actions/upload-artifact@v4
+        with:
+          name: eslint-fix-results
+          path: src/
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eslint-results
+          path: eslint-results.json
+
+  # ─────────────────────────────────────────────
+  # 4. SEMGREP — SAST (XSS, Injection, Next.js CVEs)
+  # ─────────────────────────────────────────────
+  semgrep:
+    name: SAST (Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python für Semgrep
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Run Semgrep (OWASP Top 10 + Next.js)
+        run: |
+          semgrep \
+            --config=p/owasp-top-ten \
+            --config=p/nextjs \
+            --config=p/typescript \
+            --metrics=off \
+            --json \
+            --output semgrep-results.json \
+            . || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: semgrep-results
+          path: semgrep-results.json
+
+  # ─────────────────────────────────────────────
+  # 5. KNIP — Toter Code (unused exports, files, deps)
+  # ─────────────────────────────────────────────
+  knip:
+    name: Dead Code (Knip)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run Knip
+        run: npx knip --reporter json 2>/dev/null > knip-results.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: knip-results
+          path: knip-results.json
+
+  # ─────────────────────────────────────────────
+  # 6. REPORT — Bündelt alles zu HTML-Bericht
+  # ─────────────────────────────────────────────
+  report:
+    name: Generate Security Report
+    needs: [gitleaks, npm-audit, eslint-security, semgrep, knip]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Download all scan results
+        uses: actions/download-artifact@v4
+        with:
+          path: scan-results/
+          merge-multiple: true
+
+      - name: Install report dependencies
+        run: npm install handlebars
+
+      - name: Generate HTML Report
+        run: |
+          PROJECT="${{ inputs.project_name }}" \
+          MODE="${{ inputs.mode }}" \
+          REPO="${{ github.repository }}" \
+          RUN_ID="${{ github.run_id }}" \
+          node scripts/generate-report.mjs
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-report-${{ github.run_id }}
+          path: security-report.html
+          retention-days: 90
+
+      - name: Post Summary to GitHub
+        if: always()
+        run: node scripts/post-summary.mjs
+
+  # ─────────────────────────────────────────────
+  # 7. FIX-PR — Erstellt PR mit allen Auto-Fixes (nur Fix-Modus)
+  # ─────────────────────────────────────────────
+  create-fix-pr:
+    name: Create Fix Pull Request
+    needs: [npm-audit, eslint-security]
+    if: inputs.mode == 'fix'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Apply all auto-fixes
+        run: |
+          npm audit fix || true
+          npm install --save-dev eslint-plugin-security@latest
+          npx eslint . --fix || true
+
+      - name: Create Fix Branch & PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "security: auto-fix vulnerabilities and linting issues"
+          branch: security/auto-fix-${{ github.run_id }}
+          title: "[Security] Auto-Fix: Vulnerabilities & Linting (${{ github.run_number }})"
+          body: |
+            ## Automatische Security-Fixes
+
+            Dieser PR wurde von der **ptr-digital Security Pipeline** erstellt.
+
+            ### Enthaltene Fixes
+            - `npm audit fix`: CVE-Patches für npm-Abhängigkeiten
+            - `eslint --fix`: Automatisch behebbare Code-Security-Issues
+
+            ### Was vor dem Merge zu prüfen ist
+            - [ ] Tests laufen durch (`npm run build`)
+            - [ ] Keine Breaking Changes in `package.json` (Major-Version-Bumps)
+            - [ ] ESLint-Fixes sind inhaltlich korrekt
+
+            ---
+            *Generiert durch [ptr-digital/nextjs-security-pipeline](https://github.com/ptr-digital/nextjs-security-pipeline)*
+          labels: security,automated
+          draft: false

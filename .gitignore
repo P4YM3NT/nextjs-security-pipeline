@@ -1,0 +1,5 @@
+node_modules/
+.security-results/
+*.html
+!templates/report.html
+.env

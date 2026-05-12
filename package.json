@@ -1,0 +1,17 @@
+{
+  "name": "@ptr-digital/nextjs-security-pipeline",
+  "version": "1.0.0",
+  "description": "Reusable security pipeline for ptr-digital Next.js projects",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "local:scan": "node scripts/local-scan.mjs",
+    "local:fix": "node scripts/local-scan.mjs --fix"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "eslint-plugin-security": "^3.0.1"
+  }
+}

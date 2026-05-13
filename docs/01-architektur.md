@@ -7,7 +7,7 @@
 GitHub Actions hat ein Feature namens **Reusable Workflows**. Das bedeutet: Ein Workflow, der in einem Repo definiert ist, kann von beliebig vielen anderen Repos aufgerufen werden — wie eine Funktion, die man importiert.
 
 ```
-ptr-digital/nextjs-security-pipeline    ← Zentral (dieses Repo)
+P4YM3NT/nextjs-security-pipeline    ← Zentral (dieses Repo)
         │
         │  @v1 (versionierter Aufruf)
         │
@@ -74,7 +74,7 @@ Kundenprojekt-Repo (z.B. photography-v2)
 │  ruft auf mit: mode=scan, project_name="..."
 │
 ▼
-ptr-digital/nextjs-security-pipeline
+P4YM3NT/nextjs-security-pipeline
 .github/workflows/security-scan.yml    ← Reusable Workflow
 │
 │  Startet 5 parallele Jobs:
@@ -101,7 +101,7 @@ ptr-digital/nextjs-security-pipeline
 Der Caller-Workflow (im Kundenprojekt) verweist auf einen Git-Tag:
 
 ```yaml
-uses: ptr-digital/nextjs-security-pipeline/.github/workflows/security-scan.yml@v1
+uses: P4YM3NT/nextjs-security-pipeline/.github/workflows/security-scan.yml@v1
 ```
 
 Wenn du eine neue Version mit Breaking Changes veröffentlichst:

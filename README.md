@@ -39,7 +39,7 @@ on:
 
 jobs:
   security:
-    uses: ptr-digital/nextjs-security-pipeline/.github/workflows/security-scan.yml@v1
+    uses: P4YM3NT/nextjs-security-pipeline/.github/workflows/security-scan.yml@v1
     with:
       mode: ${{ inputs.mode || 'scan' }}
       project_name: ${{ inputs.project_name || github.repository }}

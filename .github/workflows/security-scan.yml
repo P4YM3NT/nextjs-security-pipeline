@@ -279,6 +279,6 @@ jobs:
             - [ ] ESLint-Fixes sind inhaltlich korrekt
 
             ---
-            *Generiert durch [ptr-digital/nextjs-security-pipeline](https://github.com/ptr-digital/nextjs-security-pipeline)*
+            *Generiert durch [P4YM3NT/nextjs-security-pipeline](https://github.com/P4YM3NT/nextjs-security-pipeline)*
           labels: security,automated
           draft: false

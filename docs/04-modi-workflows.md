@@ -87,7 +87,7 @@ Sicherheitsupdates können theoretisch Breaking Changes enthalten. Der PR gibt d
 ```yaml
 jobs:
   security:
-    uses: ptr-digital/nextjs-security-pipeline/...@v1
+    uses: P4YM3NT/nextjs-security-pipeline/...@v1
     secrets: inherit
 ```
 

@@ -9,7 +9,7 @@
 
 Eine automatisierte Security-Pipeline für Next.js-Projekte. Sie läuft auf GitHub und prüft jeden Code auf Sicherheitslücken — ohne dass du etwas installieren oder manuell ausführen musst.
 
-**Das zentrale Prinzip:** Einmal aufbauen (`ptr-digital/nextjs-security-pipeline`), überall einbinden. Neue Projekte kriegen die Pipeline in 3 Minuten.
+**Das zentrale Prinzip:** Einmal aufbauen (`P4YM3NT/nextjs-security-pipeline`), überall einbinden. Neue Projekte kriegen die Pipeline in 3 Minuten.
 
 ---
 

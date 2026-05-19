@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security Report — {{project}}</title>
+  <title>Security Report &#8212; {{project}}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
@@ -55,9 +55,9 @@
 <!-- HEADER -->
 <div class="header">
   <div>
-    <div class="header-brand">ptr-digital · Security Report</div>
+    <div class="header-brand">ptr-digital &#183; Security Report</div>
     <div class="header-project">{{project}}</div>
-    <div style="margin-top: 0.5rem; color: #94a3b8; font-size: 0.85rem;">Modus: {{mode}} · Run #{{runId}}</div>
+    <div style="margin-top: 0.5rem; color: #94a3b8; font-size: 0.85rem;">Modus: {{mode}} &#183; Run #{{runId}}</div>
   </div>
   <div class="header-meta">
     <div style="font-size: 0.75rem;">Erstellt am</div>
@@ -84,7 +84,7 @@
     <div class="summary-card" style="border-color: {{#if npmCritical}}#dc2626{{else}}{{#if npmHigh}}#ea580c{{else}}#16a34a{{/if}}{{/if}};">
       <div class="count" style="color: {{#if npmCritical}}#dc2626{{else}}{{#if npmHigh}}#ea580c{{else}}#16a34a{{/if}}{{/if}};">{{npmTotal}}</div>
       <div class="label">npm Vulnerabilities</div>
-      <div class="sublabel">{{npmCritical}} kritisch · {{npmHigh}} hoch</div>
+      <div class="sublabel">{{npmCritical}} kritisch &#183; {{npmHigh}} hoch</div>
     </div>
     <div class="summary-card" style="border-color: {{#if semgrepCount}}#ea580c{{else}}#16a34a{{/if}};">
       <div class="count" style="color: {{#if semgrepCount}}#ea580c{{else}}#16a34a{{/if}};">{{semgrepCount}}</div>
@@ -106,7 +106,7 @@
   <!-- SECRETS -->
   <div class="section">
     <div class="section-title">
-      🔑 Secrets & API-Keys <span class="badge">{{secretCount}}</span>
+      &#128273; Secrets & API-Keys <span class="badge">{{secretCount}}</span>
     </div>
     {{#if secrets.length}}
       <table>
@@ -132,14 +132,14 @@
         </tbody>
       </table>
     {{else}}
-      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine Secrets oder API-Keys gefunden</div></div>
+      <div class="empty-state"><div class="icon">&#9989;</div><div class="text">Keine Secrets oder API-Keys gefunden</div></div>
     {{/if}}
   </div>
 
   <!-- NPM AUDIT -->
   <div class="section">
     <div class="section-title">
-      📦 npm Dependency Vulnerabilities <span class="badge">{{npmTotal}}</span>
+      &#128230; npm Dependency Vulnerabilities <span class="badge">{{npmTotal}}</span>
     </div>
     {{#if npmVulns.length}}
       <table>
@@ -149,7 +149,7 @@
             <th>Schweregrad</th>
             <th>Betroffene Version</th>
             <th>Ursache (via)</th>
-            <th>Auto-Fix verfügbar</th>
+            <th>Auto-Fix verf&#252;gbar</th>
           </tr>
         </thead>
         <tbody>
@@ -165,14 +165,14 @@
         </tbody>
       </table>
     {{else}}
-      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine bekannten Vulnerabilities in Abhängigkeiten</div></div>
+      <div class="empty-state"><div class="icon">&#9989;</div><div class="text">Keine bekannten Vulnerabilities in Abh&#228;ngigkeiten</div></div>
     {{/if}}
   </div>
 
   <!-- SEMGREP -->
   <div class="section">
     <div class="section-title">
-      🔍 SAST Code-Analyse (Semgrep) <span class="badge">{{semgrepCount}}</span>
+      &#128269; SAST Code-Analyse (Semgrep) <span class="badge">{{semgrepCount}}</span>
     </div>
     {{#if semgrepIssues.length}}
       <table>
@@ -200,14 +200,14 @@
         </tbody>
       </table>
     {{else}}
-      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine SAST-Findings (OWASP Top 10, Next.js-Regeln)</div></div>
+      <div class="empty-state"><div class="icon">&#9989;</div><div class="text">Keine SAST-Findings (OWASP Top 10, Next.js-Regeln)</div></div>
     {{/if}}
   </div>
 
   <!-- ESLINT -->
   <div class="section">
     <div class="section-title">
-      📝 ESLint Security Issues <span class="badge">{{eslintCount}}</span>
+      &#128221; ESLint Security Issues <span class="badge">{{eslintCount}}</span>
     </div>
     {{#if eslintIssues.length}}
       <table>
@@ -235,18 +235,18 @@
         </tbody>
       </table>
     {{else}}
-      <div class="empty-state"><div class="icon">✅</div><div class="text">Keine ESLint Security Issues gefunden</div></div>
+      <div class="empty-state"><div class="icon">&#9989;</div><div class="text">Keine ESLint Security Issues gefunden</div></div>
     {{/if}}
   </div>
 
   <!-- KNIP / DEAD CODE -->
   <div class="section">
     <div class="section-title">
-      🗑️ Toter Code & ungenutzte Abhängigkeiten (Knip)
-      <span class="badge">{{unusedFilesCount}} Dateien · {{unusedDepsCount}} Deps</span>
+      &#128465;&#65039; Toter Code & ungenutzte Abh&#228;ngigkeiten (Knip)
+      <span class="badge">{{unusedFilesCount}} Dateien &#183; {{unusedDepsCount}} Deps</span>
     </div>
     {{#if unusedFiles.length}}
-      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">Ungenutzte Dateien (erhöhen Angriffsfläche):</p>
+      <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.75rem;">Ungenutzte Dateien (erh&#246;hen Angriffsfl&#228;che):</p>
       <table>
         <tbody>
           {{#each unusedFiles}}
@@ -266,17 +266,17 @@
       </table>
     {{/if}}
     {{#if (and (eq unusedFilesCount 0) (eq unusedDepsCount 0))}}
-      <div class="empty-state"><div class="icon">✅</div><div class="text">Kein toter Code oder ungenutzte Abhängigkeiten</div></div>
+      <div class="empty-state"><div class="icon">&#9989;</div><div class="text">Kein toter Code oder ungenutzte Abh&#228;ngigkeiten</div></div>
     {{/if}}
   </div>
 
   <!-- DSGVO BOX -->
   <div class="gdpr-box">
-    <h3>📋 Technische Sicherheitsmaßnahmen gemäß Art. 32 DSGVO</h3>
+    <h3>&#128203; Technische Sicherheitsma&#223;nahmen gem&#228;&#223; Art. 32 DSGVO</h3>
     <p>
-      Im Rahmen der technisch-organisatorischen Maßnahmen (TOMs) gemäß Art. 32 DSGVO wurde am <strong>{{date}}</strong> eine automatisierte Sicherheitsprüfung des Projekts <strong>{{project}}</strong> durchgeführt. Die Prüfung umfasste:
-      Secret-Scanning (Gitleaks), Dependency-Vulnerability-Analyse (npm audit), statische Code-Analyse (Semgrep OWASP Top 10), sicherheitsorientiertes Linting (ESLint Security Plugin) sowie Erkennung ungenutzter Code-Bestandteile (Knip). Alle Prüfwerkzeuge laufen ausschließlich in der eigenen GitHub-Infrastruktur. Es wurden keine Code-Daten an Drittanbieter-Dienste übertragen.
-      Dieses Dokument dient als Nachweis der regelmäßigen Überprüfung gemäß Art. 32 Abs. 1 lit. d DSGVO.
+      Im Rahmen der technisch-organisatorischen Ma&#223;nahmen (TOMs) gem&#228;&#223; Art. 32 DSGVO wurde am <strong>{{date}}</strong> eine automatisierte Sicherheitspr&#252;fung des Projekts <strong>{{project}}</strong> durchgef&#252;hrt. Die Pr&#252;fung umfasste:
+      Secret-Scanning (Gitleaks), Dependency-Vulnerability-Analyse (npm audit), statische Code-Analyse (Semgrep OWASP Top 10), sicherheitsorientiertes Linting (ESLint Security Plugin) sowie Erkennung ungenutzter Code-Bestandteile (Knip). Alle Pr&#252;fwerkzeuge laufen ausschlie&#223;lich in der eigenen GitHub-Infrastruktur. Es wurden keine Code-Daten an Drittanbieter-Dienste &#252;bertragen.
+      Dieses Dokument dient als Nachweis der regelm&#228;&#223;igen &#220;berpr&#252;fung gem&#228;&#223; Art. 32 Abs. 1 lit. d DSGVO.
     </p>
   </div>
 
@@ -284,8 +284,8 @@
 
 <!-- FOOTER -->
 <div class="footer">
-  <strong>ptr-digital</strong> · Automatisierter Security Report · {{date}}<br>
-  Generiert durch die <em>ptr-digital Next.js Security Pipeline</em> · Alle Tools MIT/Apache lizenziert
+  <strong>ptr-digital</strong> &#183; Automatisierter Security Report &#183; {{date}}<br>
+  Generiert durch die <em>ptr-digital Next.js Security Pipeline</em> &#183; Alle Tools MIT/Apache lizenziert
 </div>
 
 </body>

@@ -162,9 +162,12 @@ const templateSrc = readFileSync(
   'utf-8'
 );
 
-Handlebars.registerHelper('ifLength', (arr, options) =>
-  (arr?.length > 0) ? options.fn(this) : options.inverse(this)
-);
+Handlebars.registerHelper('ifLength', function(arr, options) {
+  return (arr?.length > 0) ? options.fn(this) : options.inverse(this);
+});
+Handlebars.registerHelper('eq', (a, b) => a === b);
+// Used as subexpression: (and x y) — last arg is always Handlebars options object
+Handlebars.registerHelper('and', (...args) => args.slice(0, -1).every(Boolean));
 
 const template = Handlebars.compile(templateSrc);
 
